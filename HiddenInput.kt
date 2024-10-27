@@ -47,17 +47,11 @@ inline fun <reified T> HiddenInput(
             showKeyboardOnFocus = true
         ),
         keyboardActions = KeyboardActions(onDone = {
-            castValue<T>(state.value).let { casted ->
-                validate(casted).let { validated ->
-                    if (validated == casted) {
-                        valueState.value = validated
+            castValue<T>(state.value)?.run {
+                valueState.value = this
 
-                        focusManager.clearFocus(true)
-                        defaultKeyboardAction(ImeAction.Done)
-                    } else {
-                        state.value = validated.toString()
-                    }
-                }
+                focusManager.clearFocus(true)
+                defaultKeyboardAction(ImeAction.Done)   
             }
         }),
         value = state.value,
