@@ -1,6 +1,6 @@
 # Hidden Input Composable
 
-Composable to open keyboard from hidden textfield and cast values to specific type
+Composable example to open keyboard from hidden textfield and cast values to specific type
 
 # Usage
 
