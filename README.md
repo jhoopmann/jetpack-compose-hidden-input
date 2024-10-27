@@ -17,8 +17,12 @@ Chip(
 
 HiddenInput(
   valueState = textState,
-  keyboardFocusRequester = focusRequester,
-  keyboardType = KeyboardType.Number,
+   keyboardOptions = KeyboardOptions(
+      keyboardType = KeyboardType.Number,
+      imeAction = ImeAction.Done,
+      autoCorrectEnabled = false,
+      showKeyboardOnFocus = true
+  ),
   validate = { it in 1024u..49151u })
 )    
 ```
