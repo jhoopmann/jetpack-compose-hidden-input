@@ -28,7 +28,7 @@ inline fun <reified T> HiddenInput(
     keyboardFocusRequester: FocusRequester,
     keyboardType: KeyboardType = KeyboardType.Text,
     keyboardImeAction: ImeAction = ImeAction.Done,
-    crossinline validate: ((value: T?) -> T) = { it as T }
+    crossinline validate: ((value: T?) -> Boolean) = { true }
 ) {
     val focusManager = LocalFocusManager.current
     val displayMetrics = LocalContext.current.resources.displayMetrics
@@ -47,16 +47,20 @@ inline fun <reified T> HiddenInput(
             showKeyboardOnFocus = true
         ),
         keyboardActions = KeyboardActions(onDone = {
-            castValue<T>(state.value)?.run {
-                valueState.value = this
+            castValue<T>(state.value)?.let { casted ->
+                if (validate(casted)) {
+                    valueState.value = casted
 
-                focusManager.clearFocus(true)
-                defaultKeyboardAction(ImeAction.Done)   
+                    focusManager.clearFocus(true)
+                    defaultKeyboardAction(ImeAction.Done)
+                } else {
+                    state.value = valueState.value?.toString() ?: ""
+                }
             }
         }),
         value = state.value,
         onValueChange = {
-            state.value = castValue<T>(it).run(validate).toString()
+            state.value = (castValue<T>(it) ?: "").toString()
         })
 }
 
