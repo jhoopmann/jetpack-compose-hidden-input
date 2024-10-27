@@ -17,6 +17,6 @@ HiddenInput(
   valueState = textState,
   keyboardFocusRequester = focusRequester,
   keyboardType = KeyboardType.Number,
-  validate = { it.takeIf { it in 1024u..49151u } ?: 1024u }
+  validate = { it in 1024u..49151u })
 )    
 ```
