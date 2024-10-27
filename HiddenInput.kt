@@ -1,4 +1,4 @@
-package de.jhoopmann.examples.android.ui.component.input
+package de.jhoopmann.corepulse.watch.ui.component.input
 
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -17,7 +17,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -26,8 +25,7 @@ import java.math.BigInteger
 inline fun <reified T> HiddenInput(
     valueState: MutableState<T>,
     keyboardFocusRequester: FocusRequester,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    keyboardImeAction: ImeAction = ImeAction.Done,
+    keyboardOptions: KeyboardOptions,
     crossinline validate: ((value: T?) -> Boolean) = { true }
 ) {
     val focusManager = LocalFocusManager.current
@@ -40,13 +38,8 @@ inline fun <reified T> HiddenInput(
         .offset(x = displayMetrics.widthPixels.dp)
         .focusRequester(keyboardFocusRequester)
         .onFocusChanged { state.value = valueState.value?.toString() ?: "" },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = keyboardImeAction,
-            autoCorrectEnabled = false,
-            showKeyboardOnFocus = true
-        ),
-        keyboardActions = KeyboardActions(onDone = {
+        keyboardOptions = keyboardOptions,
+        keyboardActions = KeyboardActions(onAny = {
             castValue<T>(state.value)?.let { casted ->
                 if (validate(casted)) {
                     valueState.value = casted
