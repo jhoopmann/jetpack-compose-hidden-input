@@ -23,31 +23,50 @@ import java.math.BigInteger
 
 @Composable
 inline fun <reified T> HiddenInput(
-    valueState: MutableState<T>,
     keyboardFocusRequester: FocusRequester,
     keyboardOptions: KeyboardOptions,
-    crossinline validate: ((value: T?) -> Boolean) = { true }
+    crossinline validate: ((value: T?) -> Boolean) = { true },
+    crossinline onCancel: () -> Unit = {},
+    crossinline onConfirm: (value: T) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val displayMetrics = LocalContext.current.resources.displayMetrics
     val state: MutableState<String> = remember { mutableStateOf("") }
+    var isFocused: Boolean = remember { false }
+    var keyboardActionInvoked: Boolean = remember { false }
 
     TextField(modifier = Modifier
         .alpha(0f)
         .size(1.dp)
         .offset(x = displayMetrics.widthPixels.dp)
         .focusRequester(keyboardFocusRequester)
-        .onFocusChanged { state.value = valueState.value?.toString() ?: "" },
-        keyboardOptions = keyboardOptions,
+        .onFocusChanged {
+            if (!it.hasFocus) {
+                state.value = ""
+
+                if (!keyboardActionInvoked && isFocused) {
+                    onCancel()
+                }
+
+                isFocused = false
+            } else {
+                isFocused = true
+            }
+
+            keyboardActionInvoked = false
+        },
+        keyboardOptions = keyboardOptions.copy(showKeyboardOnFocus = true),
         keyboardActions = KeyboardActions(onAny = {
             castValue<T>(state.value)?.let { casted ->
                 if (validate(casted)) {
-                    valueState.value = casted
+                    keyboardActionInvoked = true
 
                     focusManager.clearFocus(true)
                     defaultKeyboardAction(ImeAction.Done)
+
+                    onConfirm(casted)
                 } else {
-                    state.value = valueState.value?.toString() ?: ""
+                    state.value = ""
                 }
             }
         }),
